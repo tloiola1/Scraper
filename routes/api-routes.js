@@ -54,7 +54,7 @@ app.get("/scraped", function(req, res) {
 // Route for getting all Articles from the db
 app.get("/saved-articles", function(req, res) {
   // Grab every document in the Articles collection
-  db.SavedArticle
+  db.Article
     .find({})
     .then(function(dbArticle) {
       // If we were able to successfully find Articles, send them back to the client
