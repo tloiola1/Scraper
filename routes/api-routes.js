@@ -25,26 +25,26 @@ app.get("/scrape", function(req, res) {
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this)
-        .children("a")
-        .text();
-      result.link = $(this)
-        .children("a")
-        .attr("href");
-      db.Article
-        .deleteMany({})
-        .then(function(){
+      var title = $(this).children("a").text();
+      var link = $(this).children("a").attr("href");
+      // db.Article
+      //   .deleteMany({})
+      //   .then(function(){
       // Create a new Article using the `result` object built from scraping
         db.Article
-          .create(result)
-          .then(function() {
+          .create({
+            title: title,
+            link: link
+          })
+          .then(function(result) {
             res.render("scrape");
+            console.log(result);
           })
           .catch(function(err) {
             // If an error occurred, send it to the client
             res.json("#######  "+err);
           });
-      });
+      // });
     });
   });
 });
