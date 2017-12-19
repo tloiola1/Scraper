@@ -1,13 +1,16 @@
 //save article to mongodb
 $(document).on("click", "#save-article", function(){
-  var data = $(this).attr("data");
-  console.log(data);
-  // $.ajax({
-  //   url: "/save-article",
-  //   method: "POST",
-  //   data:
-  // })
-})
+  var id = $(this).attr("data");
+  // console.log(id);
+  $.ajax({
+    method: "POST",
+    url: "/save/" + id  
+  })
+    .then(function(data){
+      location.reload();
+    });
+});
+
 // Whenever someone clicks a p tag
 $(document).on("click", "#note", function() {
   // Empty the notes from the note section

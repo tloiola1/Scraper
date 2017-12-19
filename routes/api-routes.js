@@ -13,7 +13,7 @@ var cheerio = require("cheerio");
 module.exports = function(app){
 // Routes
 // A GET route for scraping the echojs website
-app.get("/scraped", function(req, res) {
+app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with request
   axios.get("http://www.echojs.com/").then(function(response) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
@@ -31,30 +31,43 @@ app.get("/scraped", function(req, res) {
       result.link = $(this)
         .children("a")
         .attr("href");
-
-      // Create a new Article using the `result` object built from scraping
       db.Article
-        .create(result)
-        .then(function(_response) {
-          db.Article
-          .find({})
-            .then(function(dbArticle) {
-            // If we were able to successfully find Articles, send them back to the client
-            res.render("scraped",{article: dbArticle});
+        .deleteMany({})
+        .then(function(){
+      // Create a new Article using the `result` object built from scraping
+        db.Article
+          .create(result)
+          .then(function() {
+            res.render("scrape");
           })
           .catch(function(err) {
             // If an error occurred, send it to the client
             res.json("#######  "+err);
           });
-        });
+      });
     });
   });
 });
 
 // Route for getting all Articles from the db
-app.get("/saved-articles", function(req, res) {
+app.get("/scraped", function(req, res) {
   // Grab every document in the Articles collection
   db.Article
+    .find({})
+    .then(function(dbArticle) {
+      // If we were able to successfully find Articles, send them back to the client
+      res.render("scraped",{article: dbArticle});
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
+
+// Route for getting all Articles from the db
+app.get("/saved", function(req, res) {
+  // Grab every document in the Articles collection
+  db.Saved
     .find({})
     .then(function(dbArticle) {
       // If we were able to successfully find Articles, send them back to the client
@@ -67,35 +80,30 @@ app.get("/saved-articles", function(req, res) {
 });
 
 // Route for saving Articles into the db
-app.post("/save-article", function(req, res) {
+app.post("/save/:id", function(req, res) {
+  var _id = req.params.id;
   // Grab every document in the Articles collection
-  console.log(req);
-  // db.SavedArticle
-  //   .create(req)
-  //   .then(function(dbArticle) {
-  //     // If we were able to successfully find Articles, send them back to the client
-  //     res.render("saved",{article: dbArticle});
-  //   })
-  //   .catch(function(err) {
-  //     // If an error occurred, send it to the client
-  //     res.json(err);
-  //   });
-});
-
-// Route for getting all Articles from the db
-app.get("/", function(req, res) {
-  // Grab every document in the Articles collection
+  console.log(_id);
   db.Article
-    .find({})
-    .then(function(dbArticle) {
-      // If we were able to successfully find Articles, send them back to the client
-      // console.log("#### "+dbArticle.length);
-      res.render("index",{article: dbArticle});
-    })
-    .catch(function(err) {
-      // If an error occurred, send it to the client
-      res.json(err);
+    .find({ _id })
+    .then(function(data){
+      db.Saved
+       .create(data)
+       .then(function(_data){
+         console.log(_data);
+         res.json(_data);
+    }).then(function(){
+      db.Article
+        .delete({ _id })
+        .then(function(result){
+          console.log(result);
+
+        }).catch(function(err) {
+        // If an error occurred, send it to the client
+        res.json(err);
+      });
     });
+  });
 });
 
 // Route for grabbing a specific Article by id, populate it with it's note

@@ -9,10 +9,13 @@ module.exports = function(app) {
   app.get("/", function(req, res) {
     res.render('index');
   });
+  app.get("/scrape", function(req, res) {
+    res.render('scrape');
+  });
   app.get("/scraped", function(req, res) {
     res.render('scraped');
   });
-  app.get("/saved-articles", function(req, res) {
+  app.get("/saved", function(req, res) {
     res.render('saved');
   });
 };

@@ -1,5 +1,8 @@
 //MONGODB_URI: mongodb://heroku_npcds4t8:kqlikkvu339qfbmgpl3rgaovsq@ds059207.mlab.com:59207/heroku_npcds4t8
-
+//username: heroku_npcds4t8
+//password: kqlikkvu339qfbmgpl3rgaovsq
+//host: ds059207.mlab.com
+//database: heroku_npcds4t8
 var express = require("express");
 var bodyParser = require("body-parser");
 var logger = require("morgan");
@@ -41,8 +44,10 @@ require("./routes/api-routes.js")(app);
 require("./routes/html-routes.js")(app);
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
+
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/heroku_npcds4t8";
 mongoose.Promise = Promise;
-mongoose.connect("mongodb://localhost/articles_db", {
+mongoose.connect( MONGODB_URI, {
   useMongoClient: true
 });
 
