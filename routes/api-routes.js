@@ -11,6 +11,24 @@ var cheerio = require("cheerio");
 
 //Exporting module app
 module.exports = function(app){
+
+  
+// Route for getting all Articles from the db
+app.get("/scraped", function(req, res) {
+  // Grab every document in the Articles collection
+  db.Article
+    .find({})
+    .then(function(dbArticle) {
+      // If we were able to successfully find Articles, send them back to the client
+      res.render("scraped",{article: dbArticle});
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
+
+
 // Routes
 // A GET route for scraping the echojs website
 app.get("/scrape", function(req, res) {
@@ -27,9 +45,9 @@ app.get("/scrape", function(req, res) {
       // Add the text and href of every link, and save them as properties of the result object
       var title = $(this).children("a").text();
       var link = $(this).children("a").attr("href");
-      // db.Article
-      //   .deleteMany({})
-      //   .then(function(){
+      db.Article
+        .deleteMany({})
+        .then(function(){
       // Create a new Article using the `result` object built from scraping
         db.Article
           .create({
@@ -37,32 +55,18 @@ app.get("/scrape", function(req, res) {
             link: link
           })
           .then(function(result) {
-            res.render("scrape");
             console.log(result);
+            res.redirect('/scraped');
           })
           .catch(function(err) {
             // If an error occurred, send it to the client
             res.json("#######  "+err);
           });
-      // });
+      });
     });
   });
 });
 
-// Route for getting all Articles from the db
-app.get("/scraped", function(req, res) {
-  // Grab every document in the Articles collection
-  db.Article
-    .find({})
-    .then(function(dbArticle) {
-      // If we were able to successfully find Articles, send them back to the client
-      res.render("scraped",{article: dbArticle});
-    })
-    .catch(function(err) {
-      // If an error occurred, send it to the client
-      res.json(err);
-    });
-});
 
 // Route for getting all Articles from the db
 app.get("/saved", function(req, res) {
